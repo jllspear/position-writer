@@ -1,6 +1,6 @@
 [project]
 name = "geobin-writer"
-version = "0.1.0"
+version = "0.1.1"
 description = "A geospatial binary writer package"
 authors = [
     { name = "Vincent Bonillo", email = "contact@jllspear.com" }
