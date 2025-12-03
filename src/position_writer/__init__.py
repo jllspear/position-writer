@@ -9,7 +9,7 @@ from .mqtt.message_buffer import ParsedObjectBuffer
 from .mqtt.reader import MqttReader
 from .mqtt.parser import MqttParser
 
-from settings import settings
+from .settings import settings
 
 
 def get_parser_from_config(parser_module: str) -> dict[str, MqttParser]:
