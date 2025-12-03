@@ -1,0 +1,27 @@
+[project]
+name = "position-writer"
+version = "0.1.0"
+description = "A geospatial binary writer package"
+authors = [
+    { name = "Vincent Bonillo", email = "contact@jllspear.com" }
+]
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+dependencies = [
+    "psycopg>=3.3.1",
+    "sqlmodel>=0.0.27",
+    "geoalchemy2>=0.18.1",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "paho-mqtt>=2.1.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/jllspear/position-writer"
+Repository = "https://github.com/jllspear/position-writer"
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.14.7",
+]
