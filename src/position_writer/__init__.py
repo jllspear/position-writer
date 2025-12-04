@@ -1,10 +1,8 @@
-import importlib
 from collections import defaultdict
 from types import ModuleType
 
 from sqlmodel import SQLModel
 
-from .database.enum import CommitBehavior
 from .database.writer import BatchWriter
 from .mqtt.client_manager import MqttClientManager
 from .mqtt.message_buffer import ParsedObjectBuffer
@@ -16,8 +14,12 @@ from .settings import settings
 
 class PositionWriter:
 
-    def __init__(self, parser_module: ModuleType) -> None:
+    def __init__(self, parser_module: ModuleType,
+                 commit_interval = 20,
+                 on_message_threads = 5) -> None:
         self.parser_module = parser_module
+        self.commit_interval = commit_interval
+        self.on_message_threads = on_message_threads
 
     def get_parser_from_config(self) -> dict[str, MqttParser]:
         parsers = defaultdict(MqttParser)
@@ -33,13 +35,13 @@ class PositionWriter:
 
         buffer = ParsedObjectBuffer[SQLModel]()
 
-        writer = BatchWriter(buffer, CommitBehavior.COMMIT_EVERY_20_SECONDS)
+        writer = BatchWriter(buffer, self.commit_interval)
         writer.start()
 
         reader = MqttReader(buffer, parsers)
 
         mqtt_client_manager = MqttClientManager(
-            settings.broker, list(parsers.keys()), reader.on_message
+            settings.broker, list(parsers.keys()), reader.on_message, self.on_message_threads
         )
         mqtt_client_manager.connect()
         mqtt_client_manager.subscribe()

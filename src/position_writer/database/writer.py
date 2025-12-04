@@ -2,21 +2,29 @@ import time
 from threading import Thread
 
 from . import db_manager
-from .enum import CommitBehavior
 from ..mqtt.message_buffer import ParsedObjectBuffer
 
 
 class BatchWriter:
-    def __init__(self, buffer: ParsedObjectBuffer, commit_behavior: CommitBehavior):
+    def __init__(self, buffer: ParsedObjectBuffer, commit_interval: int):
         self.buffer = buffer
-        self.commit_behavior = commit_behavior
         self._running = False
         self.thread = None
+        if commit_interval < 1:
+            print(f"Warning: commit_interval {commit_interval}s is below minimum. Using 1s instead.")
+            self.commit_interval = 1
+        else:
+            self.commit_interval = commit_interval
 
     def _write_loop(self):
         while self._running:
-            time.sleep(self.commit_behavior.value)  # or .secs
+            next_commit_time = time.time() + self.commit_interval
+
             self.commit_buffered_elements()
+
+            remaining_time = next_commit_time - time.time()
+            if remaining_time > 0:
+                time.sleep(remaining_time)
 
     def commit_buffered_elements(self):
         elements = self.buffer.get_and_clear()
@@ -28,9 +36,10 @@ class BatchWriter:
 
         try:
             with session.begin():
+                start_time = time.time()
                 session.add_all(elements)
 
-            print(f"Successfully committed {len(elements)} elements")
+            print(f"Successfully committed {len(elements)} elements in {time.time() - start_time} seconds")
 
         except Exception as e:
             print(f"Database error: {e}")

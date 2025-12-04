@@ -1,5 +1,4 @@
 import json
-from time import sleep
 
 from .message_buffer import ParsedObjectBuffer
 from .parser import MqttParser
@@ -16,7 +15,6 @@ class MqttReader:
     def on_message(self, client, userdata, msg):
         try:
             topic = msg.topic
-            sleep(2)
             if settings.broker.verbose:
                 print("Received message on topic {}".format(topic))
             payload = json.loads(msg.payload.decode("utf-8"))

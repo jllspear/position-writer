@@ -10,7 +10,7 @@ from ..settings.broker import BrokerSettings
 
 class MqttClientManager:
     def __init__(
-        self, settings: BrokerSettings, topics: list[str], on_message: Callable
+        self, settings: BrokerSettings, topics: list[str], on_message: Callable, on_message_threads: int
     ):
         self._id = 0
         self.topics = topics
@@ -18,7 +18,7 @@ class MqttClientManager:
         self.settings = settings
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.pending_subscriptions = defaultdict(str)
-        self.executor = ThreadPoolExecutor(max_workers=5)
+        self.executor = ThreadPoolExecutor(max_workers=max(1, on_message_threads))
 
     def on_connect(self, client, userdata, flags, reason_code, properties):
         if reason_code == 0:
