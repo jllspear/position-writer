@@ -1,20 +1,16 @@
 # Position Writer
 
-Writer MQTT vers PostgreSQL - Pont entre topics MQTT et tables de base de données.
+Writer from MQTT to PostgreSQL - Bridge between MQTT topics and corresponding database tables.
 
 ## Customisation
 
-### Créer un repo alembic
+### Modules to feed the lib
+- `models` - Models SQLModel
+- `parser` - Parsers et validators
 
-- `alembic.versions` - Migrations de base de données
+### Example : Model + Parser
 
-### Modules a injecter dans la librairie
-- `models` - Modèles SQLModel
-- `parser` - Parsers et validateurs
-
-### Exemple : Modèle + Parser
-
-**Modèle de base de données** (`modules.database.custom_models`) :
+**Modèle de base de données**:
 
 ```python
 class DevicePosition(SQLModel, table=True):
@@ -26,7 +22,7 @@ class DevicePosition(SQLModel, table=True):
     coordinates: str = Field(default=None, sa_column=Column(Geometry("POINT", srid=4326)))
 ```
 
-**Parser + Validateur** (`modules.mqtt.custom_parsers`) :
+**Parser + Validateur**:
 
 ```python
 class DevicePositionParser(MqttParser[DevicePosition]):
@@ -65,11 +61,15 @@ class DevicePositionValidator(BaseModel):
 
 ## Configuration
 
-Associer topics MQTT et parsers via variable d'environnement :
+Linking MQTT topics and parsers with an environment variable :
 
 ```bash
 BROKER__TOPICS={"device_log":"DeviceLogParser","device_position":"DevicePositionParser"}
 ```
+
+### Create alambic repo (Optional)
+
+- `alembic.versions` - database migration
 
 ## Tests MQTT
 

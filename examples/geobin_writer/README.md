@@ -1,21 +1,21 @@
 # Geobin Writer
 
-Writer MQTT vers PostgreSQL - Pont entre topics MQTT et tables de base de données.
+Writer from MQTT to PostgreSQL - Bridge between MQTT topics and corresponding database tables.
 
-## Build & Tag
+## Build & Tag Only (build+tag for local testing)
 
 ```bash
 docker buildx build --platform linux/amd64 -t registry.optimaize.fr/jllspear/geobin-writer:0.0.1 --load .
 ```
 
-## Push to registry
+## Push to registry (build+tag+push)
 ```bash
 docker buildx build --platform linux/amd64 -t registry.optimaize.fr/jllspear/geobin-writer:0.0.1 --push .
 ```
 
 ## Configuration
 
-Associer topics MQTT et parsers via variable d'environnement :
+Linking MQTT topics and parsers with an environment variable :
 
 ```bash
 BROKER__TOPICS={"device_log":"DeviceLogParser","device_position":"DevicePositionParser"}
