@@ -1,4 +1,7 @@
+from typing import Union, Any
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
+import json
 
 
 class BrokerSettings(BaseSettings):
@@ -6,7 +9,7 @@ class BrokerSettings(BaseSettings):
     port: int
     username: str
     password: str
-    topics: dict[str, str]
+    topics: Union[list[str], dict[str, str]]
     first_reconnect_delay: int = 1
     reconnect_rate: int = 2
     max_reconnect_count: int = 8

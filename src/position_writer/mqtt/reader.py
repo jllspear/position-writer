@@ -19,7 +19,9 @@ class MqttReader:
                 print("Received message on topic {}".format(topic))
 
             raw = msg.payload.decode("utf-8", errors="replace")
-            raw = raw.replace("\r", "\\r").replace("\n", "\\n")
+            if settings.broker.verbose:
+                print(f"Decoding payload: {repr(raw)}")
+
             payload = json.loads(raw)
 
             if settings.broker.verbose:

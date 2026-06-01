@@ -17,6 +17,11 @@ dependencies = [
     "paho-mqtt>=2.1.0"
 ]
 
+[project.optional-dependencies]
+standalone = [
+    "alembic>=1.17.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/jllspear/position-writer"
 Repository = "https://github.com/jllspear/position-writer"

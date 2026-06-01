@@ -125,3 +125,40 @@ BROKER__RECHECK_EQUIPMENT_INTERVAL=180
 BROKER__VERBOSE=true
 
 ```
+
+# Standalone mode
+
+The writer can be deployed as a standalone app with the image ``jllspear/mqtt-writer``.
+An example can be found in ``test/docker-compose.yml``
+
+Paired with a Postgres database, it will automatically create a schema named ``writer`` and an object named ``generic_payload`` through its own alembic.
+
+````
+GenericPayload:
+    id
+    topic
+    payload
+    created_at
+````
+
+It can be paired with another writer using this app as a lib on the same database and using a different alembic versioning.
+
+The main difference with using the app as standalone is these two properties:
+```
+      - BROKER__TOPICS=["topic_0", "topic_1"]
+      - STANDALONE=true
+```
+The ``BROKER__TOPICS`` becomes a simple list instead of a dictionary.
+
+## Build & Tag
+
+```bash
+docker buildx build --platform linux/amd64 -t registry.optimaize.fr/jllspear/mqtt-writer:0.0.1 --load .
+```
+
+## Push to registry
+```bash
+docker buildx build --platform linux/amd64 -t registry.optimaize.fr/jllspear/mqtt-writer:0.0.1 --push .
+docker buildx build --platform linux/amd64 -t registry.optimaize.fr/jllspear/mqtt-writer:0.0.1 -t registry.optimaize.fr/jllspear/mqtt-writer:latest --push .
+
+```

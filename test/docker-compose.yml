@@ -1,0 +1,48 @@
+services:
+  postgis:
+    image: registry.optimaize.fr/postgis/postgis:18-3.6
+    ports:
+      - "5431:5432"
+    environment:
+      - POSTGRES_DB=writer
+      - POSTGRES_USER=writer
+      - POSTGRES_PASSWORD=writer
+    volumes:
+      - ./database:/var/lib/postgresql:Z
+
+  mosquitto:
+    image: registry.optimaize.fr/eclipse-mosquitto:2.0.22
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mqtt/config:/mosquitto/config:Z
+      - ./mqtt/data:/mosquitto/data:Z
+      - ./mqtt/log:/mosquitto/log:Z
+      - ./mqtt/passwd_file:/mosquitto/passwd_file:Z
+
+  writer:
+    image: registry.optimaize.fr/jllspear/mqtt-writer:0.0.1
+    restart: always
+    environment:
+      - DATABASE__PROVIDER=postgresql
+      - DATABASE__DIALECT=psycopg
+      - DATABASE__HOST=postgis
+      - DATABASE__PORT=5432
+      - DATABASE__USER=writer
+      - DATABASE__PASSWORD=writer
+      - DATABASE__DATABASE=writer
+      - DATABASE__CLIENT_NAME=writer-broker
+      - DATABASE__ECHO=false
+      - BROKER__URL=mosquitto
+      - BROKER__PORT=1883
+      - BROKER__USERNAME=writer
+      - BROKER__PASSWORD=writer_broker_pwd
+      - BROKER__FIRST_RECONNECT_DELAY=1
+      - BROKER__RECONNECT_RATE=2
+      - BROKER__MAX_RECONNECT_COUNT=8
+      - BROKER__MAX_RECONNECT_DELAY=180
+      - BROKER__RECHECK_EQUIPMENT_INTERVAL=180
+      - BROKER__VERBOSE=true
+      - BROKER__TOPICS=["topic_0", "topic_1"]
+      - STANDALONE=true

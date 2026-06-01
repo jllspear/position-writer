@@ -7,6 +7,7 @@ from .database import DatabaseSettings
 class Settings(BaseSettings):
     database: DatabaseSettings = None
     broker: BrokerSettings = None
+    standalone: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

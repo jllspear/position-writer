@@ -5,6 +5,7 @@ from sqlmodel import SQLModel
 
 from .database.writer import BatchWriter
 from .mqtt.client_manager import MqttClientManager
+from .mqtt.generic_payload_parser import GenericPayloadParser
 from .mqtt.message_buffer import ParsedObjectBuffer
 from .mqtt.reader import MqttReader
 from .mqtt.parser import MqttParser
@@ -14,7 +15,7 @@ from .settings import settings
 
 class PositionWriter:
 
-    def __init__(self, parser_module: ModuleType,
+    def __init__(self, parser_module: ModuleType | None = None,
                  commit_interval = 20,
                  on_message_threads = 5) -> None:
         self.parser_module = parser_module
@@ -23,6 +24,16 @@ class PositionWriter:
 
     def get_parser_from_config(self) -> dict[str, MqttParser]:
         parsers = defaultdict(MqttParser)
+
+        if settings.standalone:
+            for topic in settings.broker.topics:
+                print(f"Standalone parser enabled for topic {topic}")
+                parsers[topic] = GenericPayloadParser(topic)
+            return parsers
+
+        if self.parser_module is None:
+            raise ValueError("parser_module is required when standalone=False")
+
         for topic, parser_class_name in settings.broker.topics.items():
             parser_cls = getattr(self.parser_module, parser_class_name)
             print(f"Custom {parser_cls} found for topic {topic}")
