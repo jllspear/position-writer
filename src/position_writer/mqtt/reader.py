@@ -30,7 +30,12 @@ class MqttReader:
             parsed_element = parser.parse(payload)
 
             if parsed_element:
-                self.buffer.add(parsed_element)
+                if isinstance(parsed_element, (list, tuple)):
+                    for el in parsed_element:
+                        if el is not None:
+                            self.buffer.add(el)
+                else:
+                    self.buffer.add(parsed_element)
 
         except json.JSONDecodeError as e:
             print(f"Failed to decode JSON message: {e}")
