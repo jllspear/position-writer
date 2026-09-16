@@ -21,6 +21,7 @@ class PositionWriter:
         self.parser_module = parser_module
         self.commit_interval = commit_interval
         self.on_message_threads = on_message_threads
+        self.buffer = ParsedObjectBuffer[SQLModel]()
 
     def get_parser_from_config(self) -> dict[str, MqttParser]:
         parsers = defaultdict(MqttParser)
@@ -44,12 +45,10 @@ class PositionWriter:
     def run(self):
         parsers = self.get_parser_from_config()
 
-        buffer = ParsedObjectBuffer[SQLModel]()
-
-        writer = BatchWriter(buffer, self.commit_interval)
+        writer = BatchWriter(self.buffer, self.commit_interval)
         writer.start()
 
-        reader = MqttReader(buffer, parsers)
+        reader = MqttReader(self.buffer, parsers)
 
         mqtt_client_manager = MqttClientManager(
             settings.broker, list(parsers.keys()), reader.on_message, self.on_message_threads
@@ -57,3 +56,6 @@ class PositionWriter:
         mqtt_client_manager.connect()
         mqtt_client_manager.subscribe()
         mqtt_client_manager.loop_forever()
+
+    def add_ext_to_buffer(self, ext: SQLModel):
+        self.buffer.add(ext)
